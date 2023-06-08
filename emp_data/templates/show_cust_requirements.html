@@ -1,0 +1,66 @@
+{% extends 'basic.html' %}
+{% block body %}
+    <center>
+        <div>
+            <h2 class="bg-primary text-white">Customer Requirements</h2>
+        </div>
+    </center>
+    <table class="table">
+        <thead class="badge-info text-white">
+            <tr>
+                <th>Requirement ID</th>
+                <th>Customers</th>
+                <th>Customer Requirement ID</th>
+                <th>Required Skills</th>
+                <th>Job Description</th>
+                <th>Required Experience</th>
+                <th>Open Positions</th>
+                <th>Remaining Position</th>
+                <th>Position Status</th>
+                <th>Sales Incharge</th>
+                <th>Candidate List</th>
+                <th>BU Head</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for customer_requirement in customer_requirements %}
+            <tr>
+                <!--<td>{{customer_requirement.Requirement_Id}}</td>-->
+                <td>{{forloop.counter}}</td>
+                <td>{{customer_requirement.customers}}</td>
+                <td>{{customer_requirement.Customer_Requirement_id}}</td>
+                <td>{{customer_requirement.Required_skills}}</td>
+                <td>{{customer_requirement.Job_Description}}</td>
+                <!--<td><button class="btn-info btn-sm" onclick="location.href='/job_description'">See Details</button>
+                </td>-->
+                <td>{{customer_requirement.Required_Experience}}</td>
+                <td>{{customer_requirement.Open_positions}}</td>
+                <td>{{customer_requirement.Open_positions}}</td>
+                <td>{{customer_requirement.Position_Status}}</td>
+                <!--<td>{{customer_requirement.Candidate_status}}</td>-->
+                <td>{{customer_requirement.Sales_Incharge}}</td>
+                <!--<td>{{customer_requirement.Candidate_List}}</td>-->
+
+                <td>
+                    <!--<button class="btn-info btn-sm" onclick="location.href='/show_candidate'">see
+                        list</button>-->
+
+                    <button class="btn-success btn-sm" onclick="location.href='/add_candidate'">Add
+                        Employee</button>
+                </td>
+                <td>{{customer_requirement.bu_head}}</td>
+                <td>
+                    <button class="btn-danger btn-sm" onclick="location.href='/deleteEmp/{{employee.eFname}}'"><i
+                            class="fa-solid fa-trash"></i></button>
+                    <button class="btn-success btn-sm" onclick="location.href='/editemp/{{employee.eFname}}'"><i
+                            class="fa-solid fa-pen-to-square"></i></button>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
