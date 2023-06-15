@@ -2,10 +2,10 @@ from ctypes import wstring_at
 from pkgutil import get_data
 import queue
 import quopri
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from emp_data.models import Customer,Employee,Customer_Requirements
 from .resources import EmployeeResource
-from emp_data.forms import CustomerForm,EmployeeForm,loginForm,UploadFileForm
+from emp_data.forms import CustomerForm,EmployeeForm, addEmpToCustomerForm,loginForm,UploadFileForm,Customer_RequirementForm
 from django.contrib import messages
 from django.contrib.auth.models import auth
 from emp_data.models import *
@@ -45,7 +45,7 @@ def home(request):
 def admin_login(request):
     return render(request, 'admin_login.html')
 '''
-# To create Customer
+# To add Customer
 
 def comp(request):
     if request.method == "POST":
@@ -80,9 +80,10 @@ def comp(request):
 '''
 
 def emp(request):
+    form=EmployeeForm()
     if request.method == "POST":
         
-        eFname = request.POST['eFname']
+        '''eFname = request.POST['eFname']
         eLname = request.POST['eLname']
         refer_Customer_no = request.POST['refer_Customer']
         eEmail = request.POST['eEmail']
@@ -98,15 +99,28 @@ def emp(request):
         ins=Employee(eFname=eFname, eLname=eLname, refer_Customer_id=refer_Customer_no, eEmail=eEmail, ePhone=ePhone, 
                      eExperience=eExperience,eskills=eskills,eRole=eRole,eMP_Type=eMP_Type,estatus=estatus,
                      leadsoc_joining_date=leadsoc_joining_date,customer_start_date=customer_start_date,remarks=remarks)
-        ins.save()
-        return redirect('/showemp')
-        
-    return render(request, 'addemp.html')
+        ins.save()'''
+        form=EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,"Details Saved !")
+            return redirect('/showemp')
+    else:
+        list=Customer.objects.all()
+        list1=[]
+        list2=[]
+        for item in list:
+            list1.append(item.id)
+            list2.append(item.cName)
+            zipped_lists = zip(list1, list2)
+        return render(request, 'addemp.html',{'zipped_lists': zipped_lists})
+
 
 def add_cust_requirements(request):
+    form=Customer_RequirementForm()
     if request.method == "POST":
         
-        Requirement_Id = request.POST['Requirement_Id']
+        '''Requirement_Id = request.POST['Requirement_Id']
         customers = request.POST['customers']
         Customer_Requirement_id = request.POST['Customer_Requirement_id']
         Required_skills = request.POST['Required_skills']
@@ -116,28 +130,70 @@ def add_cust_requirements(request):
         remain_positions = request.POST['remain_positions'] 
         Position_Status = request.POST['Position_Status']        
         Sales_Incharge = request.POST['Sales_Incharge']
-        bu_head = request.POST['bu_head']        
+        bu_head = request.POST['Bu_head']        
         cust_require_data=Customer_Requirements(Requirement_Id=Requirement_Id,customers_id=customers,Customer_Requirement_id=Customer_Requirement_id, 
                                                 Required_skills=Required_skills, Job_Description=Job_Description, Required_Experience=Required_Experience,
                                                    Open_positions =Open_positions, remain_positions=remain_positions, Position_Status=Position_Status,
-                                                    Sales_Incharge=Sales_Incharge, bu_head=bu_head)
-        cust_require_data.save()
-        return redirect('/show_cust_requirements.html')
+                                                    Sales_Incharge=Sales_Incharge, Bu_head=bu_head)
+        cust_require_data.save()'''
+        form=Customer_RequirementForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Details Saved !')
+            return redirect('/show_cust_requirements')
     else:
-        return render(request, 'addcustrequirements.html')
+        list=Customer.objects.all()
+        list1=[]
+        list2=[]
+        for item in list:
+            list1.append(item.id)
+            list2.append(item.cName)
+            zipped_lists = zip(list1, list2)
+        return render(request, 'addcustrequirements.html',{'zipped_lists': zipped_lists})
 
 # To retrieve Customer details
+
+def update_cust_requirements(request,Requirement_id):
+    # model_instance=get_object_or_404(Customer_Requirements, pk=Requirement_id) 
+    model_instance=Customer_Requirements.objects.get(pk=Requirement_id)
+    model_instance.Required_skills=request.POST['Required_skills']
+    model_instance.Job_Description=request.POST['Job_Description']
+    model_instance.Required_Experience=request.POST['Required_Experience']
+    model_instance.Open_positions=request.POST['Open_positions']
+    model_instance.remain_positions=request.POST['Open_positions']
+    model_instance.Position_Status=request.POST['Position_Status']
+    model_instance.Sales_Incharge=request.POST['Sales_Incharge']
+    model_instance.save()
+    return redirect('/show_cust_requirements')
+    
+    
+    if request.method=='POST':
+        form=Customer_RequirementForm(request.POST,instance=model_instance)
+        if form.is_valid():
+            form.save()
+    return redirect('/show_cust_requirements')   
+
+    
+
+
+
 def show(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     companies = Customer.objects.all()
     return render(request, "show.html", {'companies':companies})
 
 # To Edit Customer details
 def edit(request, cName):
+    if not request.user.is_authenticated:
+        return redirect('home')
     customer = Customer.objects.get(cName=cName)
     return render(request, "edit.html", {'customer':customer})
 
 # To Update Customer
 def update(request, cName):
+    if not request.user.is_authenticated:
+        return redirect('home')
     customer = Customer.objects.get(cName=cName)
     form = CustomerForm(request.POST, instance= customer)
     if form.is_valid():
@@ -147,17 +203,58 @@ def update(request, cName):
 
 # To Delete Customer details
 def delete(request, cName):
+    if not request.user.is_authenticated:
+        return redirect('home')
     
     customer = Customer.objects.get(cName=cName)
-    customer.delete()       
-
+    customer.delete()    
+    messages.success(request,'The Selected customer'  + customer.cName +  'is deleted successfully')
+   
     return redirect("/show")
 
-# show customer_requirements details
+
+# from django.db.models import Q
+
+# def show_cust_requirements(request):
+#     customer_requirements = Customer_Requirements.objects.all()
+#     form = Employee.objects.filter(estatus='Free').values()
+#     if request.method == "GET":
+#         skills = request.GET.get('searchskill')
+#         if skills:
+#             form = Employee.objects.filter(Q(eskills__icontains=skills) & Q(estatus='Free'))
+#         else:
+#             form = Employee.objects.filter(estatus='Free')
+#     return render(request, "show_cust_requirements.html", {'customer_requirements': customer_requirements, 'form': form})
+
+
 def show_cust_requirements(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
+    else :
+        customer_requirements = Customer_Requirements.objects.all()
+        return render(request,'show_cust_requirements.html',{'customer_requirements':customer_requirements})
+
+    
+    form = Employee.objects.filter(estatus ='Free').values()
+    if request.method == "GET":   
+        free = Employee.objects.filter(estatus ='Free').values()              
+        skills = request.GET.get('searchskill')
+        #f = Employee.objects.values_list('eskills')
+        if skills == free:  
+        #if skills != f:
+            form = Employee.objects.filter(eskills__icontains= skills).filter(estatus__icontains= free)
+            #above eskills form column name with double underscore icontain inbuilt attribute
+    return render(request, "show_cust_requirements.html", {'customer_requirements':customer_requirements, 'form': form})
+
+
+# show customer_requirements details
+'''
+def show_cust_requirements(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
     customer_requirements = Customer_Requirements.objects.all()
     return render(request, "show_cust_requirements.html", {'customer_requirements':customer_requirements})
-
+'''
 def job_description(request):
     job_desc = Customer_Requirements.objects.values('Job_Description')
     #print(job_desc)
@@ -165,6 +262,8 @@ def job_description(request):
 
 # adding candidate details in customer_requirement page
 def add_candidate(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
         candidate_name = request.POST['candidate_name']
         interview_status = request.POST['interview_status']
@@ -182,55 +281,121 @@ def show_candidate(request):
     candidate = Employee.objects.filter(estatus ='Free').values()
     return render(request,"show_candidate.html",{'candidate':candidate})'''
 # search and show the data
-def show_candidate(request):
+def show_candidate(request,customers):
     form = Employee.objects.filter(estatus ='Free').values()
     #form = Employee.objects.all()
-    
+    customer_model=Customer.objects.get(cName=customers)
+    c_id=customer_model.id
     if request.method == "GET":   
         free = Employee.objects.filter(estatus ='Free').values()              
-        skills = request.GET.get('searchskill')        
+        skills = request.GET.get('searchskill')      
         #f = Employee.objects.values_list('eskills')
-        if skills == free:  
-        #if skills != f:
-            form = Employee.objects.filter(eskills__icontains= skills).filter(estatus__icontains= free)
+        if skills != None: 
+        #if skills == free:
+            form = Employee.objects.filter(eskills__icontains= skills)
             #above eskills form column name with double underscore icontain inbuilt attribute
-    return render(request,'show_candidate.html',{'form':form})
+    return render(request,'show_candidate.html',{'form':form , 'customer_id':c_id})
 
 def checkbox(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
+    
     if request.method == 'POST':
-        empName=request.POST.getlist("check")
-        print(empName)
+        if request.POST.getlist('checks'):
+            
+            s = request.POST.getlist('checks')
+            print(s)
+            for i in s:               
+                savedata = addEmpToCustomer()
+                savedata.eFname = i
+                savedata.save()         
+            
 
-    return redirect("/show_candidate")
+        return redirect('/showEmpToCustomer')
+    else:
+        return redirect('showEmpToCustomer')
 
 
 from .forms import addEmpToCustomerForm
 
-def addempcustomer(request):
+# def addempcustomer(request):
+#     if not request.user.is_authenticated:
+#         return redirect('home')
+#     form=addEmpToCustomerForm()
+#     if request.method == 'POST':        
+#         form = addEmpToCustomerForm(request.POST)
+#         if form.is_valid():
+#             form.save()         
+#             return redirect('/showEmpToCustomer')
+#     context = {'form': form}
+#     return render(request, 'showEmpToCustomer.html', context)
+
+def savedvalues(request,customer_id):
+    
     if request.method == 'POST':
-        form = addEmpToCustomerForm(request.POST or None)
+        emp = request.POST.getlist('eFname')
+        print(emp)
+        savedata1 = addEmpToCustomer()
+        emp1=[]
+        for i in emp:
+            newval=Employee.objects.get(eFname=i)
+            newval.estatus='Deployed'
+            newval.save()
+            final=addEmpToCustomer(eFname=newval.eFname,eLname=newval.eLname,eskills=newval.eskills,refer_Customer=Customer(id=customer_id),estatus='Deployed')
+            final.save()
+            newval2=addEmpToCustomer.objects.filter(eFname=i)
+            emp1.append(newval2)
+        # return HttpResponse(emp1)
+    #         savedata2=Employee.objects.get(eFname=val)
+    #         savedata1=addEmpToCustomer(eFname=savedata2.eFname,eLname=savedata2.eLname,eskills=savedata2.eskills,refer_Customer=10,estatus='deployed')
+    #         savedata1.save()
+    #         # emp.append(savedata2)
+    #     # savedata.eFname=request.POST.getlist('eFname')
+    #     # savedata.save()
+            
+    return redirect('/showEmpToCustomer')
 
-        if form.is_valid():
-            print(form.cleaned_data)
-    else:
-        form = addEmpToCustomerForm()
-
-    context = {'form': form}
-    return render(request, 'show_candidate.html', context)
-
-def savedvalues(request):
-    if request.method == 'POST':
-        if request.POST.getlist('eFname'):  
-            print("sunil")
-            savedata = addEmpToCustomer()
-            savedata.eFname=request.POST.getlist('eFname')
-            savedata.save()
-            print(savedata)
-            #return render(request,'show_candidate.html')
-    else:
-        return render(request,'show_candidate.html')
-
+#show added employe to customer
+def showEmpToCustomer(request):  
+    if not request.user.is_authenticated:
+        return redirect('home')
+    emp_data = addEmpToCustomer.objects.all()   
+    return render(request, "showEmpToCustomer.html", {'form':emp_data})
+    
+#dropdown customer names
+def dropDownCustomer(request):
+    if request.method == "POST":
+        if request.POST.get('cName'):
+            savevalue = addEmpToCustomer()
+            savevalue.refer_Customer = request.POST.get('cName')
+            savevalue.save()
+            messages.success(request,'The Selected customer' +savevalue.refer_Customer+ 'is saved successfully')
+            return redirect('/showEmpToCustomer')
         
+        else:
+            return render(request,'showEmpToCustomer')
+        
+def showDropDown(request):
+    display_cust = addEmpToCustomer.objects.all()
+
+    return render(request,'showEmpToCustomer.html',{'display_cust':display_cust})
+
+# delete employee from addEmpToCustomer table
+def delete_Emp_Customer(request,eFname):   
+    if not request.user.is_authenticated:
+        return redirect('home') 
+    try:
+        emp = addEmpToCustomer.objects.get(eFname=eFname)
+        emp.delete()
+    except addEmpToCustomer.MultipleObjectsReturned:
+        emp = addEmpToCustomer.objects.filter(eFname=eFname)[0]
+        emp.delete()
+
+    messages.success(request,'The Selected Employee'  + emp.eFname +  'is deleted successfully')
+
+    return redirect('/showEmpToCustomer')
+
+
   
   
   
@@ -250,28 +415,36 @@ def emp(request):
     else:
         
         form = EmployeeForm()
-        print("sunil")
+        
     return render(request, "addemp.html", {'form':form})
 '''
 
 # To show employee details
 def showemp(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     employees = Employee.objects.all()
     return render(request, "showemp.html", {'employees':employees})
 
 # To delete employee details
 def deleteEmp(request, eFname):
+    if not request.user.is_authenticated:
+        return redirect('home')
     employee = Employee.objects.get(eFname=eFname)
     employee.delete()
     return redirect("/showemp")
 
 # To edit employee details
 def editemp(request, eFname):
+    if not request.user.is_authenticated:
+        return redirect('home')
     employee = Employee.objects.get(eFname=eFname)
     return render(request, "editemployee.html", {'employee':employee})
 
 # To update employee details
 def updateEmp(request, eFname):
+    if not request.user.is_authenticated:
+        return redirect('home')
     employee = Employee.objects.get(eFname=eFname)
     form = EmployeeForm(request.POST, instance= employee)
     
@@ -281,9 +454,27 @@ def updateEmp(request, eFname):
         return redirect("/showemp")
     return render(request, "editemployee.html", {'employee': employee})
 
+def save_emp_details(request): 
+    if not request.user.is_authenticated:
+        return redirect('home')
+    if request.method == 'POST':
+        selected_employees = request.POST.getlist('employee_checkbox')
+        for employee_id in selected_employees:
+            employee = Employee.objects.get(id=employee_id)
+            add_emp = addEmpToCustomer(
+                eFname=employee.eFname,
+                eLname=employee.eLname,
+                refer_Customer=request.user.customer,  # Assuming you have a logged-in user with a related customer
+                eskills=employee.eskills
+            )
+            add_emp.save()
+    return redirect("/show_cust_requirements")
+
 
 # this is working upload employee data to model
 def simple_upload(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     
     if request.method == "POST":
         
@@ -321,6 +512,8 @@ def simple_upload(request):
 
 # upload customer data to model
 def customer_data_upload(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     
     if request.method == "POST":
         
@@ -348,6 +541,8 @@ def customer_data_upload(request):
 
 # upload customer requirement data the model
 def customer_requirement_file(request):
+    if not request.user.is_authenticated:
+        return redirect('home')
     
     if request.method == "POST":
         
@@ -374,7 +569,7 @@ def customer_requirement_file(request):
                 data[8],
                 data[9],
                 data[10],
-                data[11]
+                data[11]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
                 )
             value.save()
         return redirect("/show_cust_requirements")
@@ -383,60 +578,6 @@ def customer_requirement_file(request):
 
 
 
-# download employee excel file
-'''
-def download_excel_data(request):
-	# content-type of response
-	response = HttpResponse(content_type='application/ms-excel')
-
-	#decide file name
-	response['Content-Disposition'] = 'attachment; filename="ThePythonDjango.xls"'
-
-	#creating workbook
-	wb = xlwt.Workbook(encoding='utf-8')
-
-	#adding sheet
-	ws = wb.add_sheet("sheet1")
-
-	# Sheet header, first row
-	row_num = 0
-
-	font_style = xlwt.XFStyle()
-	# headers are bold
-	font_style.font.bold = True
-
-	#column header names, you can use your own headers here
-	columns = ['Column 1', 'Column 2', 'Column 3', 'Column 4','Column 5','Column 6',
-            'Column 7','Column 8','Column 9','Column 10','Column 11','Column 12','Column 13' ]
-
-	#write column headers in sheet
-	for col_num in range(len(columns)):
-		ws.write(row_num, col_num, columns[col_num], font_style)
-
-	# Sheet body, remaining rows
-	font_style = xlwt.XFStyle()
-
-	#get your data, from database or from a text file...
-	data = get_data() #dummy method to fetch data.
-	for my_row in data:                           
-	    row_num = row_num + 1
-	    ws.write(row_num, 0, my_row.eFame, font_style)
-        ws.write(row_num, 1, my_row.eLname, font_style)
-	    ws.write(row_num, 2, my_row.refer_Customer, font_style)
-	    ws.write(row_num, 4, my_row.eEmail, font_style)
-        ws.write(row_num, 5, my_row.ePhone, font_style)
-        ws.write(row_num, 6, my_row.eExperience, font_style)
-        ws.write(row_num, 7, my_row.eskills, font_style)
-        ws.write(row_num, 8, my_row.eMP_Type, font_style)
-        ws.write(row_num, 9, my_row.estatus, font_style)
-        ws.write(row_num, 10, my_row.leadsoc_joining_date, font_style)
-        ws.write(row_num, 11, my_row.customer_start_date, font_style)
-        ws.write(row_num, 12, my_row.remarks, font_style)
-        
-
-	wb.save(response)
-	return response
-'''
 #Reset and login views
 
 from urllib.parse import urlparse, urlunparse

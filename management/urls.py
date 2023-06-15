@@ -41,14 +41,23 @@ urlpatterns = [
     # user signup path
     #path('signup',views.signup),
     path("home",views.home),
+    
    # customer requirements details
-    path("show_cust_requirements", views.show_cust_requirements),
+    path("show_cust_requirements", views.show_cust_requirements, name='show_cust_requirements'),
+    path("save_emp_details", views.save_emp_details, name="save_emp_details"),
     path('add_cust_requirements',views.add_cust_requirements),
     path('job_description',views.job_description), 
     path('add_candidate',views.add_candidate),
-    path('show_candidate',views.show_candidate),
-    path('savedvalues',views.savedvalues),
+    path('show_candidate/<str:customers>',views.show_candidate),
+    path('savedvalues/<int:customer_id>',views.savedvalues),
+    path('showEmpToCustomer',views.showEmpToCustomer),
+    # path('addempcustomer',views.addempcustomer),
+    path('checkbox',views.checkbox),
+    path('dropDownCustomer',views.dropDownCustomer),
+    path('showDropDown',views.showDropDown),
+    path('update_cust_requirements/<int:Requirement_id>',views.update_cust_requirements),
     #path('candidate_search',views.candidate_search),
+
      #Customer paths 
     path('comp', views.comp),
     path('show', views.show),
@@ -63,6 +72,8 @@ urlpatterns = [
     path('editemp/<str:eFname>', views.editemp), 
     path('updateEmp/<str:eFname>', views.updateEmp),
     
+    # employee deleted from customer
+    path('delete_Emp_Customer/<str:eFname>', views.delete_Emp_Customer),
 
     #Homepage path
     path('', TemplateView.as_view(template_name='home.html'), name='home'),

@@ -100,8 +100,12 @@
           <input type="text" class="form-control" id="eLname" name="eLname" placeholder="enter Last name">
         </div>
         <div class="form-group">
-          <label for="refer_Customer">Customer No:</label>
-          <input type="text" class="form-control" id="refer_Customer" name="refer_Customer" placeholder="enter customer name">
+          <label for="refer_Customer">Select Customer</label>
+          <select name="refer_Customer" id="refer_Customer">
+            {% for item1,item2 in zipped_lists %}
+            <option value="{{item1}}">{{item2}}</option>
+            {% endfor %}
+          </select>
         </div>
         <div class="form-group">
           <label for="eEmail">Email:</label>

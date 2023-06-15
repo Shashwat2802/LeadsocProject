@@ -14,8 +14,12 @@
             placeholder="Enter Requirement Id">
         </div>
         <div class="form-group">
-          <label for="customers">Customer Name:</label>
-          <input type="text" class="form-control" id="customers" name="customers" placeholder="enter customer Name">
+          <label for="customers">Select Customer</label>
+          <select name="customers" id="customers">
+            {% for item1,item2 in zipped_lists %}
+            <option value="{{item1}}">{{item2}}</option>
+            {% endfor %}
+          </select>
         </div>
         <div class="form-group">
           <label for="Customer_Requirement_id">Customer Requirement Id:</label>
@@ -54,7 +58,6 @@
           <input type="text" class="form-control" id="Position_Status" name="Position_Status"
             placeholder="Enter position status active or not">
         </div>
-    </div>
     <div class="form-group">
       <label for="Sales_Incharge">Sales Incharge:</label>
       <input type="text" class="form-control" id="Sales_Incharge" name="Sales_Incharge"

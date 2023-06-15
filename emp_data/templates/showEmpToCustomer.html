@@ -1,0 +1,45 @@
+{% extends 'basic.html' %}
+{% block body %}
+<body>
+
+    <center>
+        <div>
+            <h3 class="bg-primary text-white">Applied Candidate List</h3>
+
+        </div>
+    </center>
+    <table class="table">
+        <thead class="badge-info text-white">
+            <tr>
+                <th>No.</th>
+                <th>Candidate Fname</th>
+                <th>Candidate Lname</th>
+                <th>Candidate Skills</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for values in form %}
+            <tr>
+                <!--<td>{{customer_requirement.Requirement_Id}}</td>-->
+                <td>{{forloop.counter}}</td>
+                <td>{{values.eFname}}</td>
+                <td>{{values.eLname}}</td>
+                <td>{{values.eskills}}</td>
+                <td>{{values.refer_Customer}}</td>
+                <td>{{values.estatus}}</td>
+                <!-- <td>{{candidate_list.refer_Customer}}</td> -->
+                <td>
+                    <button class="btn-danger btn-sm" onclick="location.href='/delete_Emp_Customer/{{values.eFname}}'">Delete</button>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</body>
+{% endblock %}

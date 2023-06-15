@@ -38,9 +38,9 @@ class Employee(models.Model):
         
 
 class Customer_Requirements(models.Model):
-    Requirement_Id = models.IntegerField(primary_key=True, unique=True)
+    Requirement_Id = models.IntegerField(unique=True)
     customers = models.ForeignKey(Customer, on_delete = models.CASCADE,db_column='cName',blank=True)
-    Customer_Requirement_id = models.IntegerField(default=0)
+    Customer_Requirement_id = models.IntegerField(primary_key=True)
     Required_skills = models.TextField()
     Job_Description = models.TextField()
     Required_Experience = models.IntegerField(default=0)
@@ -49,13 +49,13 @@ class Customer_Requirements(models.Model):
     Position_Status = models.CharField(max_length=10) # active or closed        
     Sales_Incharge = models.CharField(max_length=50) # name of the person
     #Candidate_List = models.CharField(max_length=100,null=True) # need candidate list
-    Bu_head = models.CharField(max_length=50,null=True)
+    Bu_head = models.CharField(max_length=50,default='RAGHU V T')
 
     class Meta:
         db_table = "customer_requirements"
 
     def __str__(self):
-        return self.customers
+        return str(self.customers)
     
 class CandidateList(models.Model):
     candidate_name = models.CharField(max_length=100,default="",editable=False,primary_key=True)
@@ -70,9 +70,11 @@ class CandidateList(models.Model):
 class addEmpToCustomer(models.Model):
     eFname = models.CharField(max_length=100,null=True)
     eLname = models.CharField(max_length=100, null=True)
-    refer_Customer = models.ForeignKey(Customer, on_delete = models.CASCADE,db_column='cName',null=True)
     eskills = models.CharField(max_length=100,null=True)
-
+    refer_Customer = models.ForeignKey(Customer, on_delete = models.CASCADE,db_column='cName',null=True)
+    estatus = models.CharField(max_length=100,null=True)
+    
+    
     class Meta:
         db_table = "addemptocustomer"
 
@@ -92,5 +94,9 @@ class Login(models.Model):
     class Meta:
         db_table = "login"
 
+class Buhead(models.Model):
+    Bu_head_name=models.CharField(max_length=100,primary_key=True)
 
+    def __str__(self):
+        return self.Bu_head_name
 

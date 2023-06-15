@@ -2,12 +2,7 @@ from import_export.admin import ImportExportModelAdmin
 from django.contrib import admin
 from emp_data import models
 
-#admin.register(models.Employee) 
 admin.site.register(models.UploadFile)
-#admin.site.register(models.Customer_Requirements)
-#admin.site.register(models.Customer)
-#admin.site.register(models.Employee)
-
 
 @admin.register(models.Customer)
 class CustomerAdmin(ImportExportModelAdmin):
@@ -53,7 +48,13 @@ class addEmpToCustomer(ImportExportModelAdmin):
     list_filter = ()
     fieldsets = ()
 
-
+admin.site.register(models.Buhead)
+# class BuheadAdmin(ImportExportModelAdmin):
+#     list_display=('Bu_head_name',)
+#     search_fields=['Bu_head_name']
+#     filter_horizontal=()
+#     list_filter=()
+#     fieldsets=()
     
 
 

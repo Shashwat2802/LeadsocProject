@@ -1,5 +1,9 @@
 {%extends 'basic.html' %}
+{% block extra%}
+
+{% endblock %}
 {% block body %}
+
     <div class="container text-white" style="margin-top: 30px;">
         <div class="col-xl-12">
             <form action="" method="get" class="form-inline">
@@ -14,11 +18,7 @@
     <div class="container text-white" style="margin-top: 30px;">
 
         <div class="col-xl-12">
-            <form action="savedvalues" method="post" class="form-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success" value="submit" style="float:right">Add Employee</button>
-
-            </form>
+            
         </div>
     </div>
 
@@ -28,6 +28,9 @@
 
         </div>
     </center>
+    <form action="/savedvalues/{{customer_id}}" method="POST" class="form-inline">
+        {% csrf_token %}
+        
     <table class="table">
         <thead class="badge-info text-white">
             <tr>
@@ -45,7 +48,7 @@
             <tr>
                 <!--<td>{{customer_requirement.Requirement_Id}}</td>-->
                 <td>{{forloop.counter}}</td>
-                <td><input type="checkbox" name="eFname" value="{{candidate_list.id}}">
+                <td><input type="checkbox" name="eFname"  id="eFname"  value="{{candidate_list.eFname}}">
                     <label for="eFname"></label>
                 </td>
                 <td>{{candidate_list.eFname}}</td>
@@ -67,5 +70,7 @@
             {% endfor %}
         </tbody>
     </table>
-    </div>
+    <button type="submit" class="btn btn-success" value="submit" style="float:right">Add Employee</button>
+
+    </form>
 {% endblock %}
