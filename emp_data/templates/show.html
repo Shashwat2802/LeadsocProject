@@ -1,0 +1,44 @@
+{% extends 'basic.html' %}
+{% block body %}
+<center>
+  <div>
+    <h2 class="bg-info text-white" style="background-color: #20272d;">List of Customer</h2>
+  </div>
+</center>
+<div class="container-fluid">
+  <table class="table table-bordered table-hover">
+    <thead class="bg-info text-white">
+      <tr>
+        <!--<th>Customer No.</th>-->
+        <th style="text-align: center">Customer Name</th>
+        <th style="text-align: center">Email</th>
+        <th style="text-align: center">website</th>
+        <th style="text-align: center">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for customer in companies %}
+      <tr>
+        <!--<td>{{customer.id}}</td>-->
+        <td style="text-align: center">{{customer.cName}}</td>
+        <td style="text-align: center">{{customer.cEmail}}</td>
+        <td style="text-align: center">{{customer.cUrl}}</td>
+        <td style="text-align: center">
+          <!--<a href="/delete/{{company.cName}}">Delete</a>
+            <a href="/edit/{{company.cName}}">Update</a>
+            <a href="emp">Update</a>-->
+
+          <button class="btn-danger btn-sm" onclick="location.href='/delete/{{customer.cName}}'"><i
+              class="fa-solid fa-trash"></i></button>
+          <button class="btn-success btn-sm" onclick="location.href='/edit/{{Customer.cName}}'"><i
+              class="fa-solid fa-pen-to-square"></i></button>
+          <!--<button class="btn-primary btn-sm" onclick="location.href='/emp'">Add Employee</button>-->
+
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
